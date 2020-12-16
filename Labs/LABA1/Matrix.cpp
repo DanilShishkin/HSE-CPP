@@ -3,6 +3,7 @@
 #include <utility>
 #include "Overloads.h"
 #include <cmath>
+#include <algorithm>
 
 Matrix::Matrix() {
         num_rows_ = 0;
@@ -35,6 +36,14 @@ double& Matrix::At(int row, int column) {
 
 double Matrix::At(int row, int column) const {
     return elements_.at(row).at(column);
+}
+
+std::vector<double>& Matrix::At(int row) {
+    return elements_.at(row);
+}
+
+std::vector<double> Matrix::At(int row) const{
+    return elements_.at(row);
 }
 
 int Matrix::GetNumRows() const {
@@ -159,44 +168,47 @@ Matrix Matrix::Inversed() const {
         throw std::invalid_argument("For a degenerate matrix, it is impossible to find the inversed matrix");
     }
 
-    double tmp;
-    int line = 0, c = 0;
 
     Matrix inv(num_rows_, num_columns_);
     for (int i = 0; i < num_rows_; i++)
         inv.At(i, i) = 1;
-
-    for (int i = 0; i < num_rows_ - 1; i++) {
-        c = i;
-        line = -1;
-        while ((line == -1) and (c < num_columns_)) {
-            if (copy.At(c, i) != 0)
-                line = c;
-            c++;
-        }
-
-        if (line != i) {
-            for (int j = 0; j < num_columns_; j++) {
-                std::swap(copy.At(i, j), copy.At(line, j));
-                std::swap(inv.At(i, j), inv.At(line, j));
+    for (int i = 0; i < num_rows_; i++) {
+        if (copy.At(i, i) == 0) {
+            for (int k = i + 1; k < num_rows_; k++) {
+                if (copy.At(k, i) != 0) {
+                    std::swap(inv.At(i), inv.At(k));
+                    std::swap(copy.At(i), copy.At(k));
+                    break;
+                }
             }
         }
-    }
 
-    for (int i = 0; i < num_rows_; i++) {
-        for (int j = 0; j < num_rows_; j++) {
-            if ((copy.At(i, i) != 0) and (i != j)) {
-                tmp = copy.At(j, i) / copy.At(i, i);
-                if (tmp != 0) {
-                    for (int k = 0; k < num_columns_; k++) {
-                        copy.At(j, k) -= copy.At(i, k) * tmp;
-                        inv.At(j, k) -= inv.At(i, k) * tmp;
-                    }
+        double norm = copy.At(i, i);
+        for (int j = 0; j < num_columns_; j++) {
+            inv.At(i, j) /= norm;
+            copy.At(i, j) /= norm;
+        }
+
+
+        for (int k = 0; k < num_rows_; k++) {
+            if (k != i) {
+                double tmp = copy.At(k, i);
+                for (int j = 0; j < num_rows_; j++) {
+                    inv.At(k, j) -= (tmp * inv.At(i, j));
+                    copy.At(k, j) -=(tmp * copy.At(i, j));
                 }
             }
         }
     }
 
+
+    for (int i = 0; i < num_rows_; i++) {
+        for (int j = 0; j < num_columns_; j++) {
+            if (std::fabs(inv.At(i, j)) < 1E-9) {
+                inv.At(i, j) = 0;
+            }
+        }
+    }
     return inv;
 }
 

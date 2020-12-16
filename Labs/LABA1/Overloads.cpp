@@ -54,7 +54,6 @@ Matrix operator-(const Matrix& one, const Matrix& two) {
             result.At(row, column) = one.At(row, column) - two.At(row, column);
         }
     }
-
     return result;
 }
 
@@ -80,16 +79,26 @@ std::vector<double> operator/(std::vector<double>& vec, double alpha) {
     return vec;
 }
 
+std::ostream& operator<<(std::ostream& out, const std::vector<double>& vec) {
+    out << "[";
+    for (auto elem : vec) {
+        out << elem;
+    }
+    out << "]";
+    return out;
+}
 
 std::vector<double> operator-(std::vector<double> lhs, std::vector<double> rhs) {
+    std::vector<double> ans;
     if (lhs.size() != rhs.size()) {
         throw std::runtime_error ("You can not to use operator - with vectors of different length");
     }
     int i = 0;
-    for (auto& elem : lhs) {
-        elem -= rhs[i++];
+    for (int i = 0; i < lhs.size(); i++) {
+        ans.push_back(lhs[i] - rhs[i]);
     }
-    return lhs;
+    std::cout << ans;
+    return ans;
 }
 
 
@@ -194,3 +203,4 @@ std::vector<double> operator*(double alpha, std::vector<double> &vec) {
     }
     return vec;
 }
+

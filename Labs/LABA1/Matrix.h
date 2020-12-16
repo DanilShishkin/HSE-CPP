@@ -20,6 +20,8 @@ public:
     void Reset(int num_rows, int num_columns);
     double& At(int row, int column);
     double At(int row, int column) const;
+    std::vector<double>& At(int row);
+    std::vector<double> At(int row) const;
     int GetNumRows() const;
     int GetNumColumns() const;
     double Trace();
